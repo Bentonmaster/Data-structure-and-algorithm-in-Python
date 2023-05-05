@@ -1,35 +1,43 @@
-MOD = 10**9 + 7
+from collections import deque
 
-def count_red(s):
-    # 计算字符串 s 中 "red" 子序列的数量
-    cnt = 0
-    idx_r, idx_e, idx_d = -1, -1, -1
-    for i in range(len(s)):
-        if s[i] == 'r':
-            idx_r = i
-        elif s[i] == 'e' and idx_r != -1:
-            idx_e = i
-        elif s[i] == 'd' and idx_e != -1:
-            idx_d = i
-            cnt += 1
-            idx_e = -1
-            idx_r = -1
-    return cnt
+from collections import deque
 
-def calculate_weights(n):
-    # 计算所有长度为 n 的字符串的权值之和
-    weights = 0
-    for i in range(3**n):
-        s = ''
-        x = i
-        for j in range(n):
-            s += 'red'[x % 3]
-            x //= 3
-        cnt = count_red(s)
-        for j in range(1, n+1):
-            weights = (weights + cnt * j) % MOD
-            cnt //= 2
-    return weights
+def find_min_days(M, n, points):
+    grass = {}
+    for x, y in points:
+        if (x, y) not in grass:
+            grass[(x, y)] = 1
+        else:
+            grass[(x, y)] += 1
+    
+    queue = deque([(x, y) for x, y in grass.keys()])
+    days =0
+    while queue:
+        for _ in range(len(queue)):
+            x, y = queue.popleft()
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+                nx, ny = x + dx, y + dy
+                if (nx, ny) not in grass:
+                    grass[(nx, ny)] = 1
+                    queue.append((nx, ny))
+                else:
+                    grass[(nx, ny)] += 1
+                if grass[(nx, ny)] >= M:
+                    return days + 1
+        days += 1
+    return 0
 
+
+# 从标准输入中读取输入数据
+M = int(input())
 n = int(input())
-print(calculate_weights(n))
+points = []
+for _ in range(n):
+    xi, yi = map(int, input().split())
+    points.append([xi, yi])
+
+# 调用函数得到输出结果
+result = find_min_days(M, n, points)
+
+# 将输出结果打印到标准输出中
+print(result)
